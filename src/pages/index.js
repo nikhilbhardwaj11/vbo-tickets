@@ -36,7 +36,9 @@ export default function PaymentScreen() {
   };
 
   return (
-    <main className={`flex min-h-screen flex-col items-center justify-center ${inter.className}`}>
+    <main
+      className={`flex min-h-screen flex-col items-center justify-center ${inter.className}`}
+    >
       <div className="flex flex-col items-center border border-gray-300 p-8 rounded-lg">
         <Image
           src="/logo.png"
@@ -47,7 +49,7 @@ export default function PaymentScreen() {
         />
         <div className="mt-8">
           <input
-            type="text"
+            type="number"
             placeholder="Enter amount"
             value={amount}
             onChange={(e) => {
@@ -71,12 +73,12 @@ export default function PaymentScreen() {
           >
             Pay Now
           </button>
-          <button
+          {/* <button
             onClick={handleRefund}
             className="px-4 py-2 bg-red-500 text-white rounded-md shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
           >
             Refund
-          </button>
+          </button> */}
         </div>
       </div>
     </main>
