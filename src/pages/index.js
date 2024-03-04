@@ -7,32 +7,63 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function PaymentScreen() {
   const [amount, setAmount] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [selectedOption, setSelectedOption] = useState("payNow");
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
 
-  const handlePayNow = () => {
-    if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      setErrorMessage("Please enter a valid amount.");
-      return;
-    }
-
-    setAmount("");
-    setSuccessMessage("Payment successful!");
+  const handleOptionSelect = (option) => {
+    setSelectedOption(option);
     setErrorMessage("");
-    router.push(`/pay?amount=${amount}`);
+    setTransactionId("");
+    setAmount("");
   };
 
-  const handleRefund = () => {
-    if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      setErrorMessage("Please enter a valid amount.");
+  const handleAmountChange = (e) => {
+    setAmount(e.target.value);
+    setErrorMessage("");
+  };
+
+  const handleTransactionIdChange = (e) => {
+    setTransactionId(e.target.value);
+    setErrorMessage("");
+  };
+
+  const handleSubmit = () => {
+    if (!selectedOption) {
+      setErrorMessage("Please select an option.");
       return;
     }
 
-    setAmount("");
-    setSuccessMessage("Refund successful!");
-    setErrorMessage("");
-    router.push(`/refund?amount=${amount}`);
+    switch (selectedOption) {
+      case "payNow":
+        if (!amount || isNaN(amount) || Number(amount) <= 0) {
+          setErrorMessage("Please enter a valid amount.");
+          return;
+        }
+        router.push(`/pay?amount=${amount}`);
+        break;
+      case "refund":
+        if (!transactionId) {
+          setErrorMessage("Please enter a transaction ID.");
+          return;
+        }
+        if (!amount || isNaN(amount) || Number(amount) <= 0) {
+          setErrorMessage("Please enter a valid amount.");
+          return;
+        }
+        router.push(`/refund?amount=${amount}&transactionId=${transactionId}`);
+        break;
+      case "printReceipt":
+        if (!transactionId) {
+          setErrorMessage("Please enter a transaction ID.");
+          return;
+        }
+        router.push(`/print?transactionId=${transactionId}`);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -47,39 +78,108 @@ export default function PaymentScreen() {
           height={150}
           className="mb-8"
         />
-        <div className="mt-8">
-          <input
-            type="number"
-            placeholder="Enter amount"
-            value={amount}
-            onChange={(e) => {
-              setAmount(e.target.value);
-              setErrorMessage("");
-              setSuccessMessage("");
-            }}
-            className="border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {errorMessage && (
-            <p className="text-red-500 text-xs mt-2">{errorMessage}</p>
-          )}
-          {successMessage && (
-            <p className="text-green-500 text-xs mt-2">{successMessage}</p>
-          )}
-        </div>
-        <div className="flex space-x-4 mt-8">
+        <div className="flex space-x-4 mt-4">
           <button
-            onClick={handlePayNow}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            onClick={() => handleOptionSelect("payNow")}
+            className={`px-4 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+              selectedOption === "payNow"
+                ? "bg-blue-500 text-white"
+                : "bg-white text-gray-700 hover:border-blue-500 hover:text-blue-500"
+            }`}
           >
             Pay Now
           </button>
-          {/* <button
-            onClick={handleRefund}
-            className="px-4 py-2 bg-red-500 text-white rounded-md shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+          <button
+            onClick={() => handleOptionSelect("refund")}
+            className={`px-4 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+              selectedOption === "refund"
+                ? "bg-red-500 text-white"
+                : "bg-white text-gray-700 hover:border-red-500 hover:text-red-500"
+            }`}
           >
             Refund
-          </button> */}
+          </button>
+          <button
+            onClick={() => handleOptionSelect("printReceipt")}
+            className={`px-4 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+              selectedOption === "printReceipt"
+                ? "bg-green-500 text-white"
+                : "bg-white text-gray-700 hover:border-green-500 hover:text-green-500"
+            }`}
+          >
+            Print Receipt
+          </button>
         </div>
+        {selectedOption && (
+          <div className="w-full">
+            <div className="mt-8">
+              {selectedOption === "payNow" && (
+                <input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={amount}
+                  onChange={handleAmountChange}
+                  onWheel={(e) => e.target.blur()}
+                  className="border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
+              {selectedOption === "refund" && (
+                <>
+                  <input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={amount}
+                    onChange={handleAmountChange}
+                    onWheel={(e) => e.target.blur()}
+                    className="border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <br />
+                  <input
+                    type="text"
+                    placeholder="Enter transaction ID"
+                    value={transactionId}
+                    onChange={handleTransactionIdChange}
+                    className="mt-4 border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </>
+              )}
+              {selectedOption === "printReceipt" && (
+                <input
+                  type="text"
+                  placeholder="Enter transaction ID"
+                  value={transactionId}
+                  onChange={handleTransactionIdChange}
+                  className="border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
+              {errorMessage && (
+                <p className="text-red-500 text-xs mt-2">{errorMessage}</p>
+              )}
+              <br />
+              <button
+                onClick={handleSubmit}
+                className={`mt-4 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+                  !selectedOption ||
+                  (!amount && selectedOption === "payNow") ||
+                  (!transactionId &&
+                    (selectedOption === "refund" ||
+                      selectedOption === "printReceipt"))
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600 text-white"
+                }`}
+                disabled={
+                  !selectedOption ||
+                  (!amount && selectedOption === "payNow") ||
+                  (!transactionId &&
+                    (selectedOption === "refund" ||
+                      selectedOption === "printReceipt"))
+                }
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
