@@ -53,10 +53,13 @@ export default function PaymentScreen() {
           setErrorMessage("Please enter a valid amount.");
           return;
         }
-        const orderId = getOrderIdByPaymentId(transactionId);
-        console.log(orderId);
+        // getOrderIdByPaymentId(transactionId);
+        // const orderId = getOrderIdByPaymentId("F9ZXVNYYYMXTA");
+        // console.log(orderId);
         return;
-        router.push(`/refund?amount=${amount}&transactionId=${transactionId}&orderId=${orderId}`);
+        router.push(
+          `/refund?amount=${amount}&transactionId=${transactionId}&orderId=${orderId}`
+        );
         break;
       case "printReceipt":
         if (!transactionId) {
@@ -69,24 +72,32 @@ export default function PaymentScreen() {
         break;
     }
   };
-
-  const getOrderIdByPaymentId = async(paymentId) => {
-    const baseUrl = "https://scl-sandbox.dev.clover.com/v1";
-    await axios
-      .get(`${baseUrl}/charges/${paymentId}`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: "Bearer 3d0a5331-f4ea-f72c-c61e-1f136054e238", // currently using hardcoded token
-        },
-      })
-      .then((response) => {
-        console.log(response.data.data);
-        return response.data.data
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+  // const options = {
+  //   method: "GET",
+  //   headers: {
+  //     accept: "application/json",
+  //     authorization: "Bearer 3d0a5331-f4ea-f72c-c61e-1f136054e238",
+  //   },
+  // };
+  //   fetch(`https://scl-sandbox.dev.clover.com/v1/charges/F9ZXVNYYYMXTA`, options)
+  //     .then((response) => response.json())
+  //     .then((response) => console.log(response))
+  //     .catch((err) => console.error(err));
+  
+  const getRefund = async(paymentId) => {
+    console.log(paymentId);
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        authorization: "Bearer 3d0a5331-f4ea-f72c-c61e-1f136054e238",
+      },
+    };
+     const data = await fetch(`https://scl-sandbox.dev.clover.com/v1/charges/${paymentId}`, options);
+     console.log(data);
+        
+  }
+getRefund("F9ZXVNYYYMXTA")
 
   return (
     <main
