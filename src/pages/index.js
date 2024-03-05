@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { useRouter } from "next/router";
-import Image from "next/image";
 import { Inter } from "next/font/google";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -52,7 +53,9 @@ export default function PaymentScreen() {
           setErrorMessage("Please enter a valid amount.");
           return;
         }
-        router.push(`/refund?amount=${amount}&transactionId=${transactionId}`);
+        const orderId = getOrderIdByPaymentId(transactionId);
+        console.log(orderId);
+        router.push(`/refund?amount=${amount}&transactionId=${transactionId}&orderId=${orderId}`);
         break;
       case "printReceipt":
         if (!transactionId) {
@@ -64,6 +67,24 @@ export default function PaymentScreen() {
       default:
         break;
     }
+  };
+
+  const getOrderIdByPaymentId = async(paymentId) => {
+    const baseUrl = "https://scl-sandbox.dev.clover.com/v1";
+    await axios
+      .get(`${baseUrl}/charges/${paymentId}`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer 3d0a5331-f4ea-f72c-c61e-1f136054e238", // currently using hardcoded token
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        return response.data
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   return (
