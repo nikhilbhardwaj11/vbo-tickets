@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 export default function PaymentScreen() {
   const [amount, setAmount] = useState("");
   const [transactionId, setTransactionId] = useState("");
+  const [orderId, setOrderId] = useState("");
   const [selectedOption, setSelectedOption] = useState("payNow");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
@@ -53,13 +54,7 @@ export default function PaymentScreen() {
           setErrorMessage("Please enter a valid amount.");
           return;
         }
-        getRefund("F9ZXVNYYYMXTA")
-                // const orderId = getOrderIdByPaymentId("F9ZXVNYYYMXTA");
-        // console.log(orderId);
-        return;
-        router.push(
-          `/refund?amount=${amount}&transactionId=${transactionId}&orderId=${orderId}`
-        );
+        getRefund(transactionId);
         break;
       case "printReceipt":
         if (!transactionId) {
@@ -72,32 +67,27 @@ export default function PaymentScreen() {
         break;
     }
   };
-  // const options = {
-  //   method: "GET",
-  //   headers: {
-  //     accept: "application/json",
-  //     authorization: "Bearer 3d0a5331-f4ea-f72c-c61e-1f136054e238",
-  //   },
-  // };
-  //   fetch(`https://scl-sandbox.dev.clover.com/v1/charges/F9ZXVNYYYMXTA`, options)
-  //     .then((response) => response.json())
-  //     .then((response) => console.log(response))
-  //     .catch((err) => console.error(err));
-  
-  const getRefund = async(paymentId) => {
-    console.log(paymentId);
-    const options = {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        authorization: "Bearer 3d0a5331-f4ea-f72c-c61e-1f136054e238",
-      },
-    };
-     const data = await axios.get(`https://scl-sandbox.dev.clover.com/v1/charges/${paymentId}`, options);
-     console.log(data);
-        
-  }
-   
+
+  const getRefund = async (paymentId) => {
+    try {
+      const response = await axios.post(
+        "https://vpo-api.mobileprogramming.net/api/getOrderData",
+        {
+          token: "3d0a5331-f4ea-f72c-c61e-1f136054e238",
+          payment_id: "F9ZXVNYYYMXTA",
+        }
+      );
+      const id = response.data.order;
+      setOrderId(id);
+      if (id) {
+        router.push(
+          `/refund?amount=${amount}&transactionId=${transactionId}&orderId=${id}`
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <main
