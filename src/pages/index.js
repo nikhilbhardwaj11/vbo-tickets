@@ -55,6 +55,7 @@ export default function PaymentScreen() {
         }
         const orderId = getOrderIdByPaymentId(transactionId);
         console.log(orderId);
+        return;
         router.push(`/refund?amount=${amount}&transactionId=${transactionId}&orderId=${orderId}`);
         break;
       case "printReceipt":
