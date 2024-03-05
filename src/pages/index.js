@@ -53,8 +53,8 @@ export default function PaymentScreen() {
           setErrorMessage("Please enter a valid amount.");
           return;
         }
-        // getOrderIdByPaymentId(transactionId);
-        // const orderId = getOrderIdByPaymentId("F9ZXVNYYYMXTA");
+        getRefund("F9ZXVNYYYMXTA")
+                // const orderId = getOrderIdByPaymentId("F9ZXVNYYYMXTA");
         // console.log(orderId);
         return;
         router.push(
@@ -93,11 +93,11 @@ export default function PaymentScreen() {
         authorization: "Bearer 3d0a5331-f4ea-f72c-c61e-1f136054e238",
       },
     };
-     const data = await fetch(`https://scl-sandbox.dev.clover.com/v1/charges/${paymentId}`, options);
+     const data = await axios.get(`https://scl-sandbox.dev.clover.com/v1/charges/${paymentId}`, options);
      console.log(data);
         
   }
-getRefund("F9ZXVNYYYMXTA")
+   
 
   return (
     <main
