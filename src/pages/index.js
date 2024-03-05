@@ -74,7 +74,8 @@ export default function PaymentScreen() {
         "https://vpo-api.mobileprogramming.net/api/getOrderData",
         {
           token: "3d0a5331-f4ea-f72c-c61e-1f136054e238",
-          payment_id: "F9ZXVNYYYMXTA",
+          // payment_id: "F9ZXVNYYYMXTA",
+          payment_id: paymentId,
         }
       );
       const id = response.data.order;
@@ -86,6 +87,7 @@ export default function PaymentScreen() {
       }
     } catch (error) {
       console.error(error);
+      setErrorMessage("Invalid Payment ID");
     }
   };
 
