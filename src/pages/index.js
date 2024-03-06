@@ -80,7 +80,7 @@ export default function PaymentScreen() {
       const id = response.data.order;
       if (id) {
         router.push(
-          `/refund?amount=${amount}&paymentId=${paymentId}&orderId=${id}`
+          `/refund?amount=${amount}&pId=${paymentId}&orderId=${id}`
         );
       }
     } catch (error) {
