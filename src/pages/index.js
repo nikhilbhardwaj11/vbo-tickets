@@ -12,6 +12,7 @@ export default function PaymentScreen() {
   const [orderId, setOrderId] = useState("");
   const [selectedOption, setSelectedOption] = useState("payNow");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isPrintingLatest, setIsPrintingLatest] = useState(false);
   const router = useRouter();
 
   const handleOptionSelect = (option) => {
@@ -74,7 +75,6 @@ export default function PaymentScreen() {
         "https://vpo-api.mobileprogramming.net/api/getOrderData",
         {
           token: "3d0a5331-f4ea-f72c-c61e-1f136054e238",
-          // payment_id: "F9ZXVNYYYMXTA",
           payment_id: paymentId,
         }
       );
@@ -91,11 +91,33 @@ export default function PaymentScreen() {
     }
   };
 
+  const getLatestOrder = async () => {
+    setIsPrintingLatest(true);
+    try {
+      const response = await axios.post(
+        "https://vpo-api.mobileprogramming.net/api/getLatestOrderId",
+        {
+          token: "3d0a5331-f4ea-f72c-c61e-1f136054e238",
+        }
+      );
+      console.log(response.data);
+      if (id) {
+        router.push(
+          `/refund?amount=${amount}&transactionId=${transactionId}&orderId=${id}`
+        );
+      }
+      setIsPrintingLatest(false);
+    } catch (error) {
+      console.error(error);
+      setIsPrintingLatest(false);
+      setErrorMessage("Internal Server Error: " + error);
+    }
+  };
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-center ${inter.className}`}
     >
-      <div className="flex flex-col items-center border border-gray-300 p-8 rounded-lg">
+      <div className="flex flex-col items-center border border-gray-300 p-10 rounded-lg">
         <Image
           src="/logo.png"
           alt="Payment screen text"
@@ -103,38 +125,54 @@ export default function PaymentScreen() {
           height={150}
           className="mb-8"
         />
-        <div className="flex space-x-4 mt-4">
-          <button
-            onClick={() => handleOptionSelect("payNow")}
-            className={`px-4 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
-              selectedOption === "payNow"
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-700 hover:border-blue-500 hover:text-blue-500"
-            }`}
-          >
-            Pay Now
-          </button>
-          <button
-            onClick={() => handleOptionSelect("refund")}
-            className={`px-4 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
-              selectedOption === "refund"
-                ? "bg-red-500 text-white"
-                : "bg-white text-gray-700 hover:border-red-500 hover:text-red-500"
-            }`}
-          >
-            Refund
-          </button>
-          <button
-            onClick={() => handleOptionSelect("printReceipt")}
-            className={`px-4 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
-              selectedOption === "printReceipt"
-                ? "bg-green-500 text-white"
-                : "bg-white text-gray-700 hover:border-green-500 hover:text-green-500"
-            }`}
-          >
-            Print Receipt
-          </button>
+        <div className="flex flex-col space-y-4">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => handleOptionSelect("payNow")}
+              className={`px-6 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+                selectedOption === "payNow"
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-700 hover:border-blue-500 hover:text-blue-500"
+              }`}
+            >
+              Pay Now
+            </button>
+            <button
+              onClick={() => handleOptionSelect("printReceipt")}
+              className={`px-6 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+                selectedOption === "printReceipt"
+                  ? "bg-green-500 text-white"
+                  : "bg-white text-gray-700 hover:border-green-500 hover:text-green-500"
+              }`}
+            >
+              Print Receipt
+            </button>
+          </div>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => handleOptionSelect("refund")}
+              className={`px-6 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+                selectedOption === "refund"
+                  ? "bg-red-500 text-white"
+                  : "bg-white text-gray-700 hover:border-red-500 hover:text-red-500"
+              }`}
+            >
+              Refund
+            </button>
+            <button
+              onClick={() => getLatestOrder()}
+              className={`px-4 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+                isPrintingLatest
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-gray-500 text-white"
+              }`}
+              disabled={isPrintingLatest}
+            >
+              {isPrintingLatest ? "Printing Latest..." : "Print Latest Receipt"}
+            </button>
+          </div>
         </div>
+
         {selectedOption && (
           <div className="w-full">
             <div className="mt-8">
