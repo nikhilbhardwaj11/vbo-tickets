@@ -104,7 +104,7 @@ export default function PaymentScreen() {
       const id = response.data
       if (id) {
         router.push(
-          `/refund?amount=${amount}&transactionId=${transactionId}&orderId=${id}`
+          `/latest?orderId=${id}`
         );
       }
       setIsPrintingLatest(false);
