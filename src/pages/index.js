@@ -101,6 +101,7 @@ export default function PaymentScreen() {
         }
       );
       console.log(response.data);
+      const id = response.data
       if (id) {
         router.push(
           `/refund?amount=${amount}&transactionId=${transactionId}&orderId=${id}`
