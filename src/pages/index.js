@@ -8,8 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function PaymentScreen() {
   const [amount, setAmount] = useState("");
-  const [transactionId, setTransactionId] = useState("");
-  const [orderId, setOrderId] = useState("");
+  const [paymentId, setPaymentId] = useState("");
   const [selectedOption, setSelectedOption] = useState("payNow");
   const [errorMessage, setErrorMessage] = useState("");
   const [isPrintingLatest, setIsPrintingLatest] = useState(false);
@@ -18,7 +17,7 @@ export default function PaymentScreen() {
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     setErrorMessage("");
-    setTransactionId("");
+    setPaymentId("");
     setAmount("");
   };
 
@@ -27,8 +26,8 @@ export default function PaymentScreen() {
     setErrorMessage("");
   };
 
-  const handleTransactionIdChange = (e) => {
-    setTransactionId(e.target.value);
+  const handlePaymentIdChange = (e) => {
+    setPaymentId(e.target.value);
     setErrorMessage("");
   };
 
@@ -47,22 +46,22 @@ export default function PaymentScreen() {
         router.push(`/pay?amount=${amount}`);
         break;
       case "refund":
-        if (!transactionId) {
-          setErrorMessage("Please enter a transaction ID.");
+        if (!paymentId) {
+          setErrorMessage("Please enter a payment ID.");
           return;
         }
         if (!amount || isNaN(amount) || Number(amount) <= 0) {
           setErrorMessage("Please enter a valid amount.");
           return;
         }
-        getRefund(transactionId);
+        getRefund(paymentId);
         break;
       case "printReceipt":
-        if (!transactionId) {
-          setErrorMessage("Please enter a transaction ID.");
+        if (!paymentId) {
+          setErrorMessage("Please enter a payment ID.");
           return;
         }
-        router.push(`/print?transactionId=${transactionId}`);
+        printReceipt(paymentId);
         break;
       default:
         break;
@@ -79,10 +78,9 @@ export default function PaymentScreen() {
         }
       );
       const id = response.data.order;
-      setOrderId(id);
       if (id) {
         router.push(
-          `/refund?amount=${amount}&transactionId=${transactionId}&orderId=${id}`
+          `/refund?amount=${amount}&paymentId=${paymentId}&orderId=${id}`
         );
       }
     } catch (error) {
@@ -114,6 +112,28 @@ export default function PaymentScreen() {
       setErrorMessage("Internal Server Error: " + error);
     }
   };
+  
+  const printReceipt = async (paymentId) => {
+    try {
+      const response = await axios.post(
+        "https://vpo-api.mobileprogramming.net/api/getOrderData",
+        {
+          token: "3d0a5331-f4ea-f72c-c61e-1f136054e238",
+          payment_id: paymentId,
+        }
+      );
+      const id = response.data.order;
+      if (id) {
+        router.push(
+          `/print?orderId=${id}`
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Invalid Payment ID");
+    }
+  };
+  
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-center ${inter.className}`}
@@ -200,9 +220,9 @@ export default function PaymentScreen() {
                   <br />
                   <input
                     type="text"
-                    placeholder="Enter transaction ID"
-                    value={transactionId}
-                    onChange={handleTransactionIdChange}
+                    placeholder="Enter payment ID"
+                    value={paymentId}
+                    onChange={handlePaymentIdChange}
                     className="mt-4 border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </>
@@ -210,9 +230,9 @@ export default function PaymentScreen() {
               {selectedOption === "printReceipt" && (
                 <input
                   type="text"
-                  placeholder="Enter transaction ID"
-                  value={transactionId}
-                  onChange={handleTransactionIdChange}
+                  placeholder="Enter payment ID"
+                  value={paymentId}
+                  onChange={handlePaymentIdChange}
                   className="border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -225,7 +245,7 @@ export default function PaymentScreen() {
                 className={`mt-4 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
                   !selectedOption ||
                   (!amount && selectedOption === "payNow") ||
-                  (!transactionId &&
+                  (!paymentId &&
                     (selectedOption === "refund" ||
                       selectedOption === "printReceipt"))
                     ? "bg-gray-300 cursor-not-allowed"
@@ -234,7 +254,7 @@ export default function PaymentScreen() {
                 disabled={
                   !selectedOption ||
                   (!amount && selectedOption === "payNow") ||
-                  (!transactionId &&
+                  (!paymentId &&
                     (selectedOption === "refund" ||
                       selectedOption === "printReceipt"))
                 }
