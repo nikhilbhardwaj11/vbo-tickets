@@ -50,10 +50,6 @@ export default function PaymentScreen() {
           setErrorMessage("Please enter a payment ID.");
           return;
         }
-        if (!amount || isNaN(amount) || Number(amount) <= 0) {
-          setErrorMessage("Please enter a valid amount.");
-          return;
-        }
         getRefund(paymentId);
         break;
       case "printReceipt":
@@ -73,7 +69,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getOrderData",
         {
-          token: "3d0a5331-f4ea-f72c-c61e-1f136054e238",
+          token: "57ec0b30-53c7-b0d9-92f8-1658088804c4",
           payment_id: paymentId,
         }
       );
@@ -95,7 +91,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getLatestOrderId",
         {
-          token: "3d0a5331-f4ea-f72c-c61e-1f136054e238",
+          token: "57ec0b30-53c7-b0d9-92f8-1658088804c4",
         }
       );
       console.log(response.data);
@@ -118,7 +114,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getOrderData",
         {
-          token: "3d0a5331-f4ea-f72c-c61e-1f136054e238",
+          token: "57ec0b30-53c7-b0d9-92f8-1658088804c4",
           payment_id: paymentId,
         }
       );
@@ -208,24 +204,13 @@ export default function PaymentScreen() {
                 />
               )}
               {selectedOption === "refund" && (
-                <>
-                  <input
-                    type="number"
-                    placeholder="Enter amount"
-                    value={amount}
-                    onChange={handleAmountChange}
-                    onWheel={(e) => e.target.blur()}
-                    className="border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <br />
                   <input
                     type="text"
                     placeholder="Enter payment ID"
                     value={paymentId}
                     onChange={handlePaymentIdChange}
-                    className="mt-4 border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className=" border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                </>
               )}
               {selectedOption === "printReceipt" && (
                 <input
@@ -239,7 +224,7 @@ export default function PaymentScreen() {
               {errorMessage && (
                 <p className="text-red-500 text-xs mt-2">{errorMessage}</p>
               )}
-              <br />
+            </div>
               <button
                 onClick={handleSubmit}
                 className={`mt-4 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
@@ -261,7 +246,6 @@ export default function PaymentScreen() {
               >
                 Submit
               </button>
-            </div>
           </div>
         )}
       </div>
