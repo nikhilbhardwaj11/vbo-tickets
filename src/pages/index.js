@@ -13,7 +13,6 @@ export default function PaymentScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isPrintingLatest, setIsPrintingLatest] = useState(false);
   const router = useRouter();
-
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     setErrorMessage("");
@@ -75,9 +74,7 @@ export default function PaymentScreen() {
       );
       const id = response.data.order;
       if (id) {
-        router.push(
-          `/refund?amount=${amount}&pId=${paymentId}&orderId=${id}`
-        );
+        router.push(`/refund?amount=${amount}&pId=${paymentId}&orderId=${id}`);
       }
     } catch (error) {
       console.error(error);
@@ -95,11 +92,9 @@ export default function PaymentScreen() {
         }
       );
       console.log(response.data);
-      const id = response.data
+      const id = response.data;
       if (id) {
-        router.push(
-          `/latest?orderId=${id}`
-        );
+        router.push(`/latest?orderId=${id}`);
       }
       setIsPrintingLatest(false);
     } catch (error) {
@@ -108,7 +103,7 @@ export default function PaymentScreen() {
       setErrorMessage("Internal Server Error: " + error);
     }
   };
-  
+
   const printReceipt = async (paymentId) => {
     try {
       const response = await axios.post(
@@ -120,16 +115,18 @@ export default function PaymentScreen() {
       );
       const id = response.data.order;
       if (id) {
-        router.push(
-          `/print?orderId=${id}`
-        );
+        router.push(`/print?orderId=${id}`);
       }
     } catch (error) {
       console.error(error);
       setErrorMessage("Invalid Payment ID");
     }
   };
-  
+
+  const handleUpdateToken = () => {
+    router.push("/login");
+  };
+
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-center ${inter.className}`}
@@ -204,13 +201,13 @@ export default function PaymentScreen() {
                 />
               )}
               {selectedOption === "refund" && (
-                  <input
-                    type="text"
-                    placeholder="Enter payment ID"
-                    value={paymentId}
-                    onChange={handlePaymentIdChange}
-                    className=" border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                <input
+                  type="text"
+                  placeholder="Enter payment ID"
+                  value={paymentId}
+                  onChange={handlePaymentIdChange}
+                  className=" border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               )}
               {selectedOption === "printReceipt" && (
                 <input
@@ -225,29 +222,37 @@ export default function PaymentScreen() {
                 <p className="text-red-500 text-xs mt-2">{errorMessage}</p>
               )}
             </div>
-              <button
-                onClick={handleSubmit}
-                className={`mt-4 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
-                  !selectedOption ||
-                  (!amount && selectedOption === "payNow") ||
-                  (!paymentId &&
-                    (selectedOption === "refund" ||
-                      selectedOption === "printReceipt"))
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-600 text-white"
-                }`}
-                disabled={
-                  !selectedOption ||
-                  (!amount && selectedOption === "payNow") ||
-                  (!paymentId &&
-                    (selectedOption === "refund" ||
-                      selectedOption === "printReceipt"))
-                }
-              >
-                Submit
-              </button>
+            <button
+              onClick={handleSubmit}
+              className={`mt-4 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+                !selectedOption ||
+                (!amount && selectedOption === "payNow") ||
+                (!paymentId &&
+                  (selectedOption === "refund" ||
+                    selectedOption === "printReceipt"))
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600 text-white"
+              }`}
+              disabled={
+                !selectedOption ||
+                (!amount && selectedOption === "payNow") ||
+                (!paymentId &&
+                  (selectedOption === "refund" ||
+                    selectedOption === "printReceipt"))
+              }
+            >
+              Submit
+            </button>
           </div>
         )}
+      </div>
+      <div
+        className=" hover:bg-red-500 hover:text-white bg-gray-200 border border-gray-300 p-2 m-2 rounded-md"
+        title="Click to update OAuth Token For API Calling"
+      >
+        <button className="" onClick={handleUpdateToken}>
+          Update OAuth Token
+        </button>
       </div>
     </main>
   );
