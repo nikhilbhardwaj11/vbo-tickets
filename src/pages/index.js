@@ -1,18 +1,77 @@
+import axios from "axios";
 import { Inter } from "next/font/google";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function PaymentScreen() {
+  // Get your own redirect URl from Clover dashboard where app is listed.
+  const APP_REDIRECT_URL =
+    "https://sandbox.dev.clover.com/oauth/merchants/0N26RMVFMHPS1?client_id=HDHY1VRHZRFMC&packageName=com.vbo.myapplication";
+
   const [amount, setAmount] = useState("");
   const [paymentId, setPaymentId] = useState("");
   const [selectedOption, setSelectedOption] = useState("payNow");
   const [errorMessage, setErrorMessage] = useState("");
   const [isPrintingLatest, setIsPrintingLatest] = useState(false);
+  const [apiToken, setApiToken] = useState("");
+
   const router = useRouter();
+
+  const handleUpdateToken = () => {
+    // Redirect the user to the authentication URL
+    window.location.href = APP_REDIRECT_URL;
+  };
+  // Check if the URL contains the expected query parameters indicating a callback
+  const checkCallback = () => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const code = queryParams.get("code");
+    const client_id = queryParams.get("client_id");
+
+    if (code && client_id) {
+      // The URL contains the 'code' and 'client_id' parameter, indicating a callback
+      console.log("Client Id:", client_id);
+      console.log("Code:", code);
+
+      exchangeCodeForToken(client_id, code);
+    } else {
+      // The URL does not contain the expected parameters
+      // This might not be a callback URL, or the authentication failed
+      console.log("No callback detected");
+    }
+  };
+
+  // Call the checkCallback function when the component mounts
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      checkCallback();
+    }
+  }, []);
+
+  const exchangeCodeForToken = (client_id, code) => {
+    const client_secret = "a341eb50-af74-4f1c-5fd7-d9e5ca34cc49";
+    const accessTokenUrl = `https://sandbox.dev.clover.com/oauth/token?client_id=${client_id}&client_secret=${client_secret}&code=${code}`;
+
+    fetch(accessTokenUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        localStorage.setItem("access_token", data.access_token);
+        setApiToken(localStorage.getItem("access_token"));
+        // Redirect the user to the desired URL
+        router.push("/");
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  };
+
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     setErrorMessage("");
@@ -68,7 +127,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getOrderData",
         {
-          token: "57ec0b30-53c7-b0d9-92f8-1658088804c4",
+          token: apiToken,
           payment_id: paymentId,
         }
       );
@@ -88,7 +147,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getLatestOrderId",
         {
-          token: "57ec0b30-53c7-b0d9-92f8-1658088804c4",
+          token: apiToken,
         }
       );
       console.log(response.data);
@@ -109,7 +168,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getOrderData",
         {
-          token: "57ec0b30-53c7-b0d9-92f8-1658088804c4",
+          token: apiToken,
           payment_id: paymentId,
         }
       );
@@ -121,10 +180,6 @@ export default function PaymentScreen() {
       console.error(error);
       setErrorMessage("Invalid Payment ID");
     }
-  };
-
-  const handleUpdateToken = () => {
-    router.push("/login");
   };
 
   return (
