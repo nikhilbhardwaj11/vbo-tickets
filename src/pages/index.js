@@ -129,7 +129,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getOrderData",
         {
-          token: apiToken || "b65b2682-0009-e78f-1a15-8962f8399623",
+          token: "b65b2682-0009-e78f-1a15-8962f8399623",
           payment_id: paymentId,
         }
       );
@@ -149,7 +149,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getLatestOrderId",
         {
-          token: apiToken || "b65b2682-0009-e78f-1a15-8962f8399623",
+          token: "b65b2682-0009-e78f-1a15-8962f8399623",
         }
       );
       console.log(response.data);
@@ -170,7 +170,7 @@ export default function PaymentScreen() {
       const response = await axios.post(
         "https://vpo-api.mobileprogramming.net/api/getOrderData",
         {
-          token: apiToken || "b65b2682-0009-e78f-1a15-8962f8399623",
+          token: "b65b2682-0009-e78f-1a15-8962f8399623",
           payment_id: paymentId,
         }
       );
